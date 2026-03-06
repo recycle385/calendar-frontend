@@ -21,11 +21,11 @@ export default function CalendarCreatePage() {
       if (participantToken) {
         localStorage.setItem(`participantToken_${calendar.slug}`, participantToken);
       }
-      navigate(`/c/${calendar.slug}`);
+      navigate(`/c/${calendar.slug}`, { replace: true });
     } catch (err) {
       console.error(err);
       // 데모를 위해 성공한 척 이동
-      navigate('/c/Ab3dE9xR');
+      navigate('/c/Ab3dE9xR', { replace: true });
     }
   };
 

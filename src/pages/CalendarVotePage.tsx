@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import client from '../api/client';
+import CalendarPicker from '../components/CalendarPicker';
 
 export default function CalendarVotePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +22,7 @@ export default function CalendarVotePage() {
         setDates(dateOptions);
       } catch (err) {
         console.error(err);
+        // Fallback for demo
         setDates(['2026-03-05', '2026-03-06', '2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
       } finally {
         setLoading(false);
@@ -43,7 +45,7 @@ export default function CalendarVotePage() {
     }
 
     try {
-      // 1. 참가자 등록 (간편 참가 시뮬레이션)
+      // 1. 참가자 등록
       const registerRes = await client.post(`/calendars/${slug}/participants`, { nickname });
       const { participantToken } = registerRes.data;
       
@@ -53,10 +55,10 @@ export default function CalendarVotePage() {
 
       // 2. 투표 제출
       await client.post(`/calendars/${slug}/votes`, { selectedDates, voteType });
-      navigate(`/c/${slug}`);
+      navigate(`/c/${slug}`, { replace: true });
     } catch (err) {
       console.error(err);
-      navigate(`/c/${slug}`);
+      navigate(`/c/${slug}`, { replace: true });
     }
   };
 
@@ -64,15 +66,15 @@ export default function CalendarVotePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-8 font-bold">
-        <ArrowLeft size={20} /> 뒤로 가기
+      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 mb-8 font-bold text-lg transition-colors">
+        <ArrowLeft size={24} /> 뒤로 가기
       </button>
 
-      <h1 className="text-4xl mb-10">내 일정 투표하기</h1>
+      <h1 className="text-4xl mb-10 font-extraBold">내 일정 투표하기</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="card-kawaii">
-          <label className="block text-lg mb-4 font-bold">닉네임</label>
+          <label className="block text-xl mb-4 font-extraBold text-slate-800">닉네임</label>
           <input 
             required
             type="text" 
@@ -84,41 +86,37 @@ export default function CalendarVotePage() {
         </div>
 
         <div className="card-kawaii">
-          <label className="block text-lg mb-6 font-bold">날짜 선택</label>
+          <label className="block text-xl mb-6 font-extraBold text-slate-800">날짜 선택</label>
           <div className="flex gap-4 mb-8">
             <button 
               type="button"
               onClick={() => setVoteType('available')}
-              className={`flex-1 py-3 rounded-2xl font-bold border-2 transition-all ${voteType === 'available' ? 'bg-secondary border-secondary text-slate-700' : 'bg-white border-slate-100 text-slate-400'}`}
+              className={`flex-1 py-4 rounded-2xl font-extraBold text-lg border-2 transition-all ${voteType === 'available' ? 'bg-secondary border-secondary text-slate-800 shadow-md' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}
             >
               가능해요
             </button>
             <button 
               type="button"
               onClick={() => setVoteType('maybe')}
-              className={`flex-1 py-3 rounded-2xl font-bold border-2 transition-all ${voteType === 'maybe' ? 'bg-accent border-accent text-slate-700' : 'bg-white border-slate-100 text-slate-400'}`}
+              className={`flex-1 py-4 rounded-2xl font-extraBold text-lg border-2 transition-all ${voteType === 'maybe' ? 'bg-accent border-accent text-slate-800 shadow-md' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}
             >
               미정이에요
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {dates.map(date => (
-              <button
-                key={date}
-                type="button"
-                onClick={() => handleDateToggle(date)}
-                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedDates.includes(date) ? (voteType === 'available' ? 'bg-secondary border-secondary' : 'bg-accent border-accent') : 'bg-white border-slate-50 hover:border-slate-200'}`}
-              >
-                <span className="text-lg font-extraBold">{date.split('-')[2]}일</span>
-                <span className="text-xs text-slate-500">{date.split('-')[1]}월</span>
-                {selectedDates.includes(date) && <CheckCircle2 size={20} className="text-slate-700" />}
-              </button>
-            ))}
-          </div>
+          <CalendarPicker 
+            availableDates={dates}
+            selectedDates={selectedDates}
+            onChange={handleDateToggle}
+            voteType={voteType}
+          />
+          
+          <p className="mt-6 text-slate-400 text-sm font-medium">
+            * 방장이 설정한 기간 내의 날짜만 선택할 수 있어요.
+          </p>
         </div>
 
-        <button type="submit" className="w-full bg-primary text-slate-800 text-xl py-5 rounded-kawaii font-extraBold shadow-lg hover:shadow-xl transition-all">
+        <button type="submit" className="w-full bg-primary text-slate-800 text-2xl py-6 rounded-kawaii font-extraBold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
           투표 제출하기
         </button>
       </form>

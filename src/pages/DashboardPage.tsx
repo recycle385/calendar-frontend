@@ -1,12 +1,18 @@
-import { Link } from 'react-router-dom';
-import { Plus, Settings, Share2, Calendar as CalendarIcon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Settings, Share2, LogOut, Calendar as CalendarIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import client from '../api/client';
 import { Calendar } from '../types';
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [calendars, setCalendars] = useState<Calendar[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    navigate('/', { replace: true });
+  };
 
   useEffect(() => {
     client.get('/calendars/my')
@@ -47,9 +53,18 @@ export default function DashboardPage() {
           <CalendarIcon className="text-primary" size={40} />
           <h1 className="text-4xl">내 캘린더</h1>
         </div>
-        <Link to="/calendars/new" className="btn-primary flex items-center gap-2 text-lg">
-          <Plus size={24} /> 새 캘린더
-        </Link>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-slate-600 font-bold transition-colors"
+            title="로그아웃"
+          >
+            <LogOut size={20} /> 로그아웃
+          </button>
+          <Link to="/calendars/new" className="btn-primary flex items-center gap-2 text-lg">
+            <Plus size={24} /> 새 캘린더
+          </Link>
+        </div>
       </header>
 
       {loading ? (

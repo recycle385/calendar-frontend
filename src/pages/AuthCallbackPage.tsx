@@ -10,7 +10,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     if (!code) {
       console.error('No authorization code found in URL');
-      navigate('/login');
+      navigate('/login', { replace: true });
       return;
     }
 
@@ -21,19 +21,21 @@ export default function AuthCallbackPage() {
 
         if (isNewUser && signupToken) {
           // New user, redirect to signup for terms agreement
-          navigate('/signup', { state: { signupToken } });
+          navigate('/signup', { state: { signupToken }, replace: true });
         } else if (accessToken) {
           // Existing user, store token and redirect to dashboard
           localStorage.setItem('accessToken', accessToken);
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         } else {
           // Unexpected response
           console.error('Unexpected auth response:', response.data);
-          navigate('/login');
+          localStorage.removeItem('accessToken');
+          navigate('/login', { replace: true });
         }
       } catch (err) {
         console.error('Auth callback failed:', err);
-        navigate('/login');
+        localStorage.removeItem('accessToken');
+        navigate('/login', { replace: true });
       }
     };
 

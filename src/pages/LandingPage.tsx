@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Calendar as CalendarIcon, Sparkles } from 'lucide-react';
 
 export default function LandingPage() {
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-6 py-4 flex items-center justify-between">
@@ -9,9 +11,15 @@ export default function LandingPage() {
           <CalendarIcon className="text-primary" size={32} />
           <span className="text-2xl font-extraBold text-slate-800">Moim</span>
         </div>
-        <Link to="/login" className="btn-primary text-slate-800">
-          로그인
-        </Link>
+        {isLoggedIn ? (
+          <Link to="/dashboard" className="btn-primary text-slate-800">
+            내 대시보드
+          </Link>
+        ) : (
+          <Link to="/login" className="btn-primary text-slate-800">
+            로그인
+          </Link>
+        )}
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 text-center">

@@ -11,7 +11,7 @@ export default function SignupPage() {
   useEffect(() => {
     if (!signupToken) {
       alert('회원가입 토큰이 없습니다. 다시 로그인해주세요.');
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [signupToken, navigate]);
 
@@ -25,7 +25,7 @@ export default function SignupPage() {
       const { accessToken } = response.data;
       if (accessToken) {
         localStorage.setItem('accessToken', accessToken);
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       }
     } catch (err) {
       console.error('Signup failed:', err);
